@@ -1,6 +1,6 @@
 import { ActionPanel, Action, Icon, List, showToast, Toast } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
-import { execSync, exec, ExecSyncOptions, ExecOptions } from "child_process";
+import { execSync, exec, ExecSyncOptions } from "child_process";
 import { useCallback } from "react";
 
 interface Browser {
@@ -36,7 +36,7 @@ function isDefaultBrowserInstalled(): boolean {
     try {
       execSync(`test -f ${path}`, execOptions);
       return true;
-    } catch (error) {
+    } catch {
       // Continue to next path
     }
   }
@@ -45,7 +45,7 @@ function isDefaultBrowserInstalled(): boolean {
   try {
     execSync("which defaultbrowser", execOptions);
     return true;
-  } catch (error) {
+  } catch {
     // Continue to next method
   }
 
