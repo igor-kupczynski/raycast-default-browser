@@ -113,7 +113,7 @@ export default function Command() {
   const { data: browsers, isLoading, revalidate, error } = usePromise(
     async () => {
       if (!isDefaultBrowserInstalled()) {
-        throw new Error("defaultbrowser CLI is not installed. Install it with: brew install defaultbrowser");
+        throw new Error("defaultbrowser CLI is not installed. Install it with: brew tap igor-kupczynski/homebrew-defaultbrowser-igor-kupczynski && brew install defaultbrowser-igor-kupczynski");
       }
       return getBrowsers();
     },

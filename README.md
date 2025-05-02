@@ -4,10 +4,11 @@ This extension lists and allows users to change their default browsers on macOS.
 
 ## Prerequisites
 
-This extension requires the `defaultbrowser` CLI tool to be installed on your system. You can install it using Homebrew:
+This extension requires the `defaultbrowser` CLI tool to be installed on your system. It is recommended to use the version from my fork. You can install it using Homebrew with the following tap:
 
 ```bash
-brew install defaultbrowser
+brew tap igor-kupczynski/homebrew-defaultbrowser-igor-kupczynski
+brew install defaultbrowser-igor-kupczynski
 ```
 
 ## Features
@@ -26,7 +27,7 @@ brew install defaultbrowser
 
 ## Troubleshooting
 
-If you see an error message about the `defaultbrowser` CLI not being installed, please install it using the command above.
+If you see an error message about the `defaultbrowser` CLI not being installed, please install it using the commands above to use my forked version.
 
 
 ## Development
@@ -34,3 +35,15 @@ If you see an error message about the `defaultbrowser` CLI not being installed, 
 ```sh
 npm install && npm run dev
 ```
+
+## Differences from Upstream
+
+This extension recommends using a forked version of the `defaultbrowser` CLI tool.
+
+- **Upstream:** [kerma/defaultbrowser 1.1](https://github.com/kerma/defaultbrowser/releases/tag/1.1)
+- **Fork:** [igor-kupczynski/defaultbrowser 1.2.1](https://github.com/igor-kupczynski/defaultbrowser/releases/tag/1.2.1)
+
+**Key differences:**
+- Fixed a bug where `*` was not present with the default browser name ([PR #26](https://github.com/kerma/defaultbrowser/pull/26))
+
+[View full diff on GitHub](https://github.com/igor-kupczynski/defaultbrowser/compare/kerma:1.1...1.2.1)
