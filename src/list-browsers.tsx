@@ -177,12 +177,13 @@ export default function Command() {
           accessories={browser.isDefault ? [{ icon: Icon.Star, text: "Default" }] : []}
           actions={
             <ActionPanel>
-              <Action
-                title={`Set ${browser.name} as Default Browser`}
-                onAction={() => handleSetDefaultBrowser(browser)}
-                icon={Icon.Globe}
-                disabled={browser.isDefault}
-              />
+              {!browser.isDefault && (
+                <Action
+                  title={`Set ${browser.name} as Default Browser`}
+                  onAction={() => handleSetDefaultBrowser(browser)}
+                  icon={Icon.Globe}
+                />
+              )}
             </ActionPanel>
           }
         />
