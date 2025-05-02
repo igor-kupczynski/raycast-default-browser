@@ -27,3 +27,10 @@ brew install defaultbrowser
 ## Troubleshooting
 
 If you see an error message about the `defaultbrowser` CLI not being installed, please install it using the command above.
+
+
+## Development
+
+```sh
+npm install && npm run dev
+```
