@@ -1,7 +1,8 @@
-import { ActionPanel, Action, Icon, List, showToast, Toast } from "@raycast/api";
+import { ActionPanel, Action, Icon, List, showToast, Toast, environment } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { execSync, exec, ExecSyncOptions } from "child_process";
 import { useCallback } from "react";
+import path from "path";
 
 interface Browser {
   name: string;
@@ -11,7 +12,7 @@ interface Browser {
 // Common options for all exec/execSync calls
 const COMMON_EXEC_OPTIONS = {
   env: { ...process.env, PATH: `${process.env.PATH}:/opt/homebrew/bin:/usr/local/bin:/usr/bin` },
-  timeout: 5000, // 5 second timeout
+  timeout: 10000, // 10 second timeout (increased for dialog interaction)
   maxBuffer: 1024 * 1024 // Increase buffer size
 };
 
@@ -94,14 +95,22 @@ function getBrowsers(): Browser[] {
   }
 }
 
-// Set default browser using defaultbrowser CLI
+// Set default browser using AppleScript wrapper that clicks the confirmation dialog
 function setDefaultBrowser(name: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Use common exec options
-    exec(`defaultbrowser ${name}`, COMMON_EXEC_OPTIONS, (error, stdout, stderr) => {
+    const scriptPath = path.join(environment.assetsPath, "set-default-browser.applescript");
+    const command = `osascript "${scriptPath}" "${name}"`;
+
+    exec(command, COMMON_EXEC_OPTIONS, (error, stdout, stderr) => {
       if (error) {
         console.error("Error setting default browser:", error);
-        reject(stderr || stdout || error.message);
+
+        // Check for accessibility permission error (exit code 2)
+        if (error.code === 2 || stderr.includes("-1728")) {
+          reject("Accessibility permission required. Please grant Raycast access in System Settings > Privacy & Security > Accessibility");
+        } else {
+          reject(stderr || stdout || error.message);
+        }
       } else {
         resolve();
       }
@@ -157,11 +166,22 @@ export default function Command() {
         // Refresh the list to show updated default browser
         revalidate();
       } catch (error) {
-        await showToast({
-          style: Toast.Style.Failure,
-          title: "Failed to set default browser",
-          message: String(error),
-        });
+        const errorMessage = String(error);
+
+        // Check for specific error types
+        if (errorMessage.includes("Accessibility permission")) {
+          await showToast({
+            style: Toast.Style.Failure,
+            title: "Accessibility Permission Required",
+            message: "Open System Settings > Privacy & Security > Accessibility and enable Raycast",
+          });
+        } else {
+          await showToast({
+            style: Toast.Style.Failure,
+            title: "Failed to set default browser",
+            message: errorMessage,
+          });
+        }
       }
     },
     [revalidate]
