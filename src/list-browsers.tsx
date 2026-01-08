@@ -1,4 +1,4 @@
-import { ActionPanel, Action, Icon, List, showToast, Toast, environment } from "@raycast/api";
+import { ActionPanel, Action, Icon, List, showToast, Toast, environment, Detail } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { execSync, exec, ExecSyncOptions } from "child_process";
 import { useCallback } from "react";
@@ -64,7 +64,7 @@ function isDefaultBrowserInstalled(): boolean {
 function getBrowsers(): Browser[] {
   try {
     // Use common exec options with encoding
-    const result = execSync("defaultbrowser", { 
+    const result = execSync("defaultbrowser", {
       ...COMMON_EXEC_OPTIONS,
       encoding: "utf-8"
     });
@@ -122,16 +122,16 @@ export default function Command() {
   const { data: browsers, isLoading, revalidate, error } = usePromise(
     async () => {
       if (!isDefaultBrowserInstalled()) {
-        throw new Error("defaultbrowser CLI is not installed. Install it with: brew tap igor-kupczynski/homebrew-defaultbrowser-igor-kupczynski && brew install defaultbrowser-igor-kupczynski");
+        throw new MissingCLIError();
       }
       return getBrowsers();
     },
     []
   );
 
-  // Show error toast if there's an error
+  // Show generic error toast if there's an error (not missing CLI)
   useCallback(async () => {
-    if (error) {
+    if (error && !(error instanceof MissingCLIError)) {
       await showToast({
         style: Toast.Style.Failure,
         title: "Error loading browsers",
@@ -139,6 +139,36 @@ export default function Command() {
       });
     }
   }, [error])();
+
+  // Specific UI for missing CLI
+  if (error instanceof MissingCLIError) {
+    const markdown = `
+# Missing Dependency
+
+This extension requires the **defaultbrowser** CLI tool to be installed.
+
+Please run the following commands in your terminal to install it:
+
+\`\`\`bash
+brew tap igor-kupczynski/homebrew-defaultbrowser-igor-kupczynski
+brew install defaultbrowser-igor-kupczynski
+\`\`\`
+    `;
+
+    return (
+      <Detail
+        markdown={markdown}
+        actions={
+          <ActionPanel>
+            <Action.CopyToClipboard
+              title="Copy Install Commands"
+              content="brew tap igor-kupczynski/homebrew-defaultbrowser-igor-kupczynski && brew install defaultbrowser-igor-kupczynski"
+            />
+          </ActionPanel>
+        }
+      />
+    );
+  }
 
   const handleSetDefaultBrowser = useCallback(
     async (browser: Browser) => {
@@ -211,3 +241,11 @@ export default function Command() {
     </List>
   );
 }
+
+class MissingCLIError extends Error {
+  constructor() {
+    super("Missing defaultbrowser CLI");
+    this.name = "MissingCLIError";
+  }
+}
+
